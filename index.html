@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Study Planner">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <title>Study Planner – April 2026</title>
+</head>
+<body>
+
+<div id="toolbar">
+  <h1>Study Planner – April 2026</h1>
+  <div id="presets"></div>
+  <div id="tools">
+    <button class="tool-btn" id="undo-btn" title="Undo (Ctrl+Z)" disabled>↩ Undo</button>
+    <button class="tool-btn" id="redo-btn" title="Redo (Ctrl+Y / Ctrl+Shift+Z)" disabled>↪ Redo</button>
+    <button class="tool-btn" id="erase-btn" title="Toggle eraser (E)">⌫ Erase</button>
+    <button class="tool-btn" id="settings-btn" title="Configure preset names &amp; colors">⚙ Presets</button>
+  </div>
+  <span id="hint">Keys 1–0: select preset &nbsp;·&nbsp; E: eraser &nbsp;·&nbsp; Drag: paint &nbsp;·&nbsp; Dbl-click block: add label &nbsp;·&nbsp; Right-click: erase</span>
+</div>
+
+<div id="grid-wrapper">
+  <table id="grid"></table>
+</div>
+
+<!-- Text edit modal -->
+<div class="modal-backdrop" id="text-modal">
+  <div class="modal-box" style="min-width:340px;">
+    <h2>Edit Label</h2>
+    <p class="cell-info" id="text-modal-info"></p>
+    <textarea id="text-input" placeholder="What are you studying?&#10;(Ctrl+Enter to save)"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="text-clear-btn">Remove label</button>
+      <button class="btn btn-secondary" id="text-cancel-btn">Cancel</button>
+      <button class="btn btn-primary" id="text-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="modal-backdrop" id="settings-modal">
+  <div class="modal-box" style="min-width:320px;">
+    <h2>Color Presets</h2>
+    <div id="presets-edit"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="settings-reset-btn">Reset defaults</button>
+      <button class="btn btn-primary" id="settings-close-btn">Done</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

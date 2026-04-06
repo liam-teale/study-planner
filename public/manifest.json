@@ -1,0 +1,17 @@
+{
+  "name": "Study Planner – April 2026",
+  "short_name": "Study Planner",
+  "description": "Plan your study sessions for finals",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f0ede8",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
