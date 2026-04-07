@@ -31,4 +31,7 @@ export function initHighlight() {
     if (td) updateHighlight(+td.dataset.h, +td.dataset.d);
   });
   document.getElementById('grid').addEventListener('mouseleave', () => updateHighlight(-1, -1));
+  // Clear highlight when window loses focus (e.g. Snipping Tool, Alt+Tab)
+  // so it doesn't get frozen into screenshots
+  window.addEventListener('blur', () => updateHighlight(-1, -1));
 }

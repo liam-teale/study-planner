@@ -179,6 +179,7 @@ tbody .col-time {
   position: relative;
   background: #faf8f5;
   vertical-align: top;
+  forced-color-adjust: none; /* preserve painted colors if Windows High Contrast triggers */
 }
 .cell:hover::after {
   content: '';
