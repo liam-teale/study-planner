@@ -27,6 +27,14 @@ body {
   color: #1a1a1a;
   white-space: nowrap;
   letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+#logo {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
 }
 #presets {
   display: flex;
