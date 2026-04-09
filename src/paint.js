@@ -12,6 +12,18 @@ function cellEl(dIdx, hIdx) {
   return document.querySelector(`.cell[data-d="${dIdx}"][data-h="${hIdx}"]`);
 }
 
+// Sweep all cells and reconcile border-top with current state.
+// Called after mouseup to catch any borders fixBorders() missed (e.g. fast mouse moves).
+function reapplyAllBorders() {
+  document.querySelectorAll('#grid tbody .cell').forEach(td => {
+    const dIdx = +td.dataset.d;
+    const hIdx = +td.dataset.h;
+    const color = state.cells[cellKey(dIdx, hIdx)]?.color ?? null;
+    const aboveColor = hIdx > 0 ? (state.cells[cellKey(dIdx, hIdx - 1)]?.color ?? null) : null;
+    td.style.borderTop = (color && color === aboveColor) ? 'hidden' : '';
+  });
+}
+
 // After painting or erasing (dIdx, hIdx), fix the top-border of that cell
 // and the cell immediately below so intra-block borders stay hidden and
 // inter-block borders stay visible — without rebuilding the whole DOM.
@@ -128,6 +140,7 @@ export function initPaint() {
 
   document.addEventListener('mouseup', () => {
     if (state.isDragging) {
+      reapplyAllBorders();
       autosave();
       renderBlockLabels();
       markPastCells();

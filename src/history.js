@@ -1,4 +1,5 @@
 import { state } from './state.js';
+import { autosave } from './storage.js';
 
 // Set by main.js to break the circular dep with grid.js
 let _afterChange = () => {};
@@ -16,6 +17,7 @@ export function undo() {
   state.redoStack.push(JSON.stringify(state.cells));
   state.cells = JSON.parse(state.undoStack.pop());
   _afterChange();
+  autosave();
   updateHistoryBtns();
 }
 
@@ -24,6 +26,7 @@ export function redo() {
   state.undoStack.push(JSON.stringify(state.cells));
   state.cells = JSON.parse(state.redoStack.pop());
   _afterChange();
+  autosave();
   updateHistoryBtns();
 }
 
