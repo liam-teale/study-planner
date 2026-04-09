@@ -5,6 +5,7 @@ import { pushUndo } from './history.js';
 import { autosave } from './storage.js';
 import { renderBlockLabels } from './grid.js';
 import { markPastCells } from './time.js';
+import { renderPresets } from './toolbar.js';
 
 // Return the live <td> for a given day/slot index, or null.
 function cellEl(dIdx, hIdx) {
@@ -76,6 +77,22 @@ function applyTool(td) {
 
 export function initPaint() {
   const grid = document.getElementById('grid');
+
+  // Middle-click: pick the preset matching the hovered block's colour
+  grid.addEventListener('mousedown', e => {
+    if (e.button !== 1) return;
+    e.preventDefault(); // prevent autoscroll cursor
+    const td = e.target.closest('.cell');
+    if (!td) return;
+    const cellData = state.cells[cellKey(+td.dataset.d, +td.dataset.h)];
+    if (!cellData) return;
+    const idx = state.presets.findIndex(p => p.color === cellData.color);
+    if (idx === -1) return;
+    state.selPreset = idx;
+    state.activeTool = 'paint';
+    document.getElementById('erase-btn').classList.remove('active');
+    renderPresets();
+  });
 
   grid.addEventListener('mousedown', e => {
     if (e.button !== 0) return;
