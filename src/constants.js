@@ -1,7 +1,7 @@
 export const START_DAY  = 5;
 export const END_DAY    = 23;
 export const START_HOUR = 8;
-export const END_HOUR   = 20; // last slot: 20:30–21:00
+export const END_HOUR   = 21; // last slot: 21:30–22:00
 export const TIME_COL_W = 58;
 export const STORAGE_KEY = 'study-planner-state';
 
