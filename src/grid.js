@@ -18,11 +18,17 @@ export function renderBlockLabels() {
   overlay.id = 'block-labels';
 
   detectBlocks().forEach(({ dIdx, start, end, color }) => {
-    // Search all cells in the block for a label (supports split blocks inheriting text)
+    // Search all cells in the block for a label (handles old data where text was on first cell only)
     let label = '';
     for (let s = start; s <= end; s++) {
       const t = state.cells[cellKey(dIdx, s)]?.text;
       if (t) { label = t; break; }
+    }
+    // Propagate to every cell so future splits each inherit the label
+    if (label) {
+      for (let s = start; s <= end; s++) {
+        if (state.cells[cellKey(dIdx, s)]) state.cells[cellKey(dIdx, s)].text = label;
+      }
     }
     if (!label) return;
 

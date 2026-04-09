@@ -20,8 +20,13 @@ function applyTool(td) {
     if (dow === 0 || dow === 6) td.classList.add('weekend-bg');
   } else {
     const color = state.presets[state.selPreset].color;
-    if (!state.cells[key]) state.cells[key] = { color, text: '' };
-    else state.cells[key].color = color;
+    if (!state.cells[key]) {
+      state.cells[key] = { color, text: '' };
+    } else {
+      // Clear inherited text when the cell is repainted with a different colour
+      if (state.cells[key].color !== color) state.cells[key].text = '';
+      state.cells[key].color = color;
+    }
 
     td.style.background = color;
     let inner = td.querySelector('.cell-inner');
