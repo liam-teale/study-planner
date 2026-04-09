@@ -89,6 +89,7 @@ function applyTool(td) {
 
 export function initPaint() {
   const grid = document.getElementById('grid');
+  let _lastDrag = null; // { dIdx, hIdx } of the last cell touched during a drag stroke
 
   // Middle-click: pick the preset matching the hovered block's colour
   grid.addEventListener('mousedown', e => {
@@ -113,6 +114,7 @@ export function initPaint() {
     e.preventDefault();
     pushUndo();
     state.isDragging = true;
+    _lastDrag = { dIdx: +td.dataset.d, hIdx: +td.dataset.h };
     applyTool(td);
   });
 
@@ -120,8 +122,24 @@ export function initPaint() {
     if (!state.isDragging) return;
     const td = e.target.closest('.cell');
     if (!td) return;
+
+    const dIdx = +td.dataset.d;
+    const hIdx = +td.dataset.h;
+
+    // If the mouse skipped cells in the same column, fill the gap.
+    if (_lastDrag && _lastDrag.dIdx === dIdx && Math.abs(hIdx - _lastDrag.hIdx) > 1) {
+      const step = hIdx > _lastDrag.hIdx ? 1 : -1;
+      for (let h = _lastDrag.hIdx + step; h !== hIdx; h += step) {
+        if (state.activeTool === 'paint' && state.cells[cellKey(dIdx, h)]) continue;
+        const fillTd = cellEl(dIdx, h);
+        if (fillTd) applyTool(fillTd);
+      }
+    }
+
+    _lastDrag = { dIdx, hIdx };
+
     if (state.activeTool === 'paint') {
-      const key = cellKey(+td.dataset.d, +td.dataset.h);
+      const key = cellKey(dIdx, hIdx);
       if (state.cells[key]) return; // don't overwrite existing blocks while dragging
     }
     applyTool(td);
@@ -146,5 +164,6 @@ export function initPaint() {
       markPastCells();
     }
     state.isDragging = false;
+    _lastDrag = null;
   });
 }
