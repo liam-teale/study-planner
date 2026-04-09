@@ -32,19 +32,26 @@ function fixBorders(dIdx, hIdx) {
   }
 }
 
+// Erase a single cell: clear state, reset DOM styles, restore weekend tint,
+// and fix surrounding borders. Used by both applyTool and the contextmenu handler.
+function eraseCell(td, dIdx, hIdx) {
+  delete state.cells[cellKey(dIdx, hIdx)];
+  td.style.background = '';
+  td.style.borderTop  = '';
+  td.title = '';
+  td.innerHTML = '';
+  const dow = DAYS[dIdx].getDay();
+  if (dow === 0 || dow === 6) td.classList.add('weekend-bg');
+  fixBorders(dIdx, hIdx);
+}
+
 function applyTool(td) {
   const dIdx = +td.dataset.d;
   const hIdx = +td.dataset.h;
   const key  = cellKey(dIdx, hIdx);
 
   if (state.activeTool === 'erase') {
-    delete state.cells[key];
-    td.style.background = '';
-    td.style.borderTop  = '';
-    td.title = '';
-    td.innerHTML = '';
-    const dow = DAYS[dIdx].getDay();
-    if (dow === 0 || dow === 6) td.classList.add('weekend-bg');
+    eraseCell(td, dIdx, hIdx);
   } else {
     const color = state.presets[state.selPreset].color;
     if (!state.cells[key]) {
@@ -63,9 +70,8 @@ function applyTool(td) {
       td.appendChild(inner);
     }
     inner.style.color = contrast(color);
+    fixBorders(dIdx, hIdx);
   }
-
-  fixBorders(dIdx, hIdx);
 }
 
 export function initPaint() {
@@ -96,16 +102,8 @@ export function initPaint() {
     const td = e.target.closest('.cell');
     if (!td) return;
     e.preventDefault();
-    const key = cellKey(+td.dataset.d, +td.dataset.h);
     pushUndo();
-    delete state.cells[key];
-    td.style.background = '';
-    td.style.borderTop  = '';
-    td.title = '';
-    td.innerHTML = '';
-    const dow = DAYS[+td.dataset.d].getDay();
-    if (dow === 0 || dow === 6) td.classList.add('weekend-bg');
-    fixBorders(+td.dataset.d, +td.dataset.h);
+    eraseCell(td, +td.dataset.d, +td.dataset.h);
     autosave();
     renderBlockLabels();
     markPastCells();

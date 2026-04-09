@@ -90,6 +90,11 @@ Hover highlighting uses `background-image: linear-gradient(rgba(...))` instead o
 ### Event Delegation
 Paint, highlight, and modal events all use event delegation on `#grid` rather than per-cell listeners. This is important because `renderGrid()` does a full DOM rebuild — delegation avoids re-attaching hundreds of listeners on every re-render.
 
+### Re-render Rule — always call `markPastCells()` after `renderGrid()`
+`renderGrid()` does a full DOM rebuild, which wipes every `.past` CSS class that `markPastCells()` had applied. **Any code that calls `renderGrid()` must call `markPastCells()` immediately afterwards**, or past-time slots will lose their darkening. The history callback in `main.js` follows this rule, as do `modals.js` and the undo/redo path.
+
+`paint.js` deliberately does **not** call `renderGrid()` — it mutates the DOM in-place so that `dblclick` detection is not broken by element replacement between the two clicks. It calls `renderBlockLabels()` + `markPastCells()` instead.
+
 ### Service Worker
 The SW is only registered in production builds (`import.meta.env.PROD` in `main.js`). During Vite dev (`npm run dev`), no SW is active — this prevents the caching problems that plagued the old single-file setup. The SW uses a pure network-first strategy.
 
@@ -109,7 +114,7 @@ Edit `DEFAULT_PRESETS` in `src/constants.js`. These are only the defaults — us
 ### Add a new feature
 1. Create `src/myfeature.js` with an `initMyFeature()` export
 2. Import and call it in `src/main.js`
-3. If it needs to trigger a re-render, import `renderGrid` from `src/grid.js`
+3. If it needs to trigger a re-render, import `renderGrid` from `src/grid.js` — and always follow it with `markPastCells()` from `src/time.js` (see Re-render Rule above)
 
 ### Clearing saved data (dev/debug)
 In the browser console:
