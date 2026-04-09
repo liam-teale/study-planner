@@ -3,8 +3,34 @@ import { DAYS } from './constants.js';
 import { cellKey, contrast } from './utils.js';
 import { pushUndo } from './history.js';
 import { autosave } from './storage.js';
-import { renderGrid } from './grid.js';
+import { renderBlockLabels } from './grid.js';
 import { markPastCells } from './time.js';
+
+// Return the live <td> for a given day/slot index, or null.
+function cellEl(dIdx, hIdx) {
+  return document.querySelector(`.cell[data-d="${dIdx}"][data-h="${hIdx}"]`);
+}
+
+// After painting or erasing (dIdx, hIdx), fix the top-border of that cell
+// and the cell immediately below so intra-block borders stay hidden and
+// inter-block borders stay visible — without rebuilding the whole DOM.
+function fixBorders(dIdx, hIdx) {
+  const color = state.cells[cellKey(dIdx, hIdx)]?.color ?? null;
+
+  // This cell's top border
+  const td = cellEl(dIdx, hIdx);
+  if (td) {
+    const aboveColor = state.cells[cellKey(dIdx, hIdx - 1)]?.color ?? null;
+    td.style.borderTop = (color && color === aboveColor) ? 'hidden' : '';
+  }
+
+  // Cell below: its top border depends on what we just changed above it
+  const tdBelow = cellEl(dIdx, hIdx + 1);
+  if (tdBelow) {
+    const belowColor = state.cells[cellKey(dIdx, hIdx + 1)]?.color ?? null;
+    tdBelow.style.borderTop = (belowColor && belowColor === color) ? 'hidden' : '';
+  }
+}
 
 function applyTool(td) {
   const dIdx = +td.dataset.d;
@@ -14,6 +40,7 @@ function applyTool(td) {
   if (state.activeTool === 'erase') {
     delete state.cells[key];
     td.style.background = '';
+    td.style.borderTop  = '';
     td.title = '';
     td.innerHTML = '';
     const dow = DAYS[dIdx].getDay();
@@ -37,6 +64,8 @@ function applyTool(td) {
     }
     inner.style.color = contrast(color);
   }
+
+  fixBorders(dIdx, hIdx);
 }
 
 export function initPaint() {
@@ -71,17 +100,23 @@ export function initPaint() {
     pushUndo();
     delete state.cells[key];
     td.style.background = '';
+    td.style.borderTop  = '';
     td.title = '';
     td.innerHTML = '';
     const dow = DAYS[+td.dataset.d].getDay();
     if (dow === 0 || dow === 6) td.classList.add('weekend-bg');
+    fixBorders(+td.dataset.d, +td.dataset.h);
     autosave();
-    renderGrid();
+    renderBlockLabels();
     markPastCells();
   });
 
   document.addEventListener('mouseup', () => {
-    if (state.isDragging) { autosave(); renderGrid(); markPastCells(); }
+    if (state.isDragging) {
+      autosave();
+      renderBlockLabels();
+      markPastCells();
+    }
     state.isDragging = false;
   });
 }
