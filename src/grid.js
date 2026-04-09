@@ -12,12 +12,18 @@ export function renderBlockLabels() {
   const cellH  = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell-h'));
   const cellW  = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell-w'));
   const theadH = document.querySelector('#grid thead').offsetHeight;
+  const now    = new Date();
 
   const overlay = document.createElement('div');
   overlay.id = 'block-labels';
 
   detectBlocks().forEach(({ dIdx, start, end, color }) => {
-    const label = state.cells[cellKey(dIdx, start)]?.text;
+    // Search all cells in the block for a label (supports split blocks inheriting text)
+    let label = '';
+    for (let s = start; s <= end; s++) {
+      const t = state.cells[cellKey(dIdx, s)]?.text;
+      if (t) { label = t; break; }
+    }
     if (!label) return;
 
     const el = document.createElement('div');
@@ -28,6 +34,13 @@ export function renderBlockLabels() {
     el.style.height = ((end - start + 1) * cellH) + 'px';
     el.style.color  = contrast(color);
     el.textContent  = label;
+
+    // Dim label text when the entire block is in the past
+    const day     = DAYS[dIdx];
+    const endArr  = SLOTS[end];
+    const slotEnd = new Date(day.getFullYear(), day.getMonth(), day.getDate(), endArr[0], endArr[1] + 30);
+    if (slotEnd <= now) el.style.opacity = '0.45';
+
     overlay.appendChild(el);
   });
 
@@ -78,7 +91,12 @@ export function renderGrid() {
       td.dataset.h = sIdx;
 
       const data = state.cells[cellKey(dIdx, sIdx)];
-      if (data) td.style.background = data.color;
+      if (data) {
+        td.style.background = data.color;
+        // Remove top border when this cell continues the same block as the one above
+        const above = sIdx > 0 ? state.cells[cellKey(dIdx, sIdx - 1)] : null;
+        if (above && above.color === data.color) td.style.borderTop = 'hidden';
+      }
 
       tr.appendChild(td);
     });

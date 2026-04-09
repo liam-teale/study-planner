@@ -11,10 +11,10 @@ function saveText() {
   const text = document.getElementById('text-input').value;
   pushUndo();
   const { dIdx, start, end } = state.editingBlock;
-  // Store label on first cell only; clear rest to prevent ghost labels
+  // Store label on every cell so split blocks each retain the text
   for (let s = start; s <= end; s++) {
     const key = cellKey(dIdx, s);
-    if (state.cells[key]) state.cells[key].text = s === start ? text : '';
+    if (state.cells[key]) state.cells[key].text = text;
   }
   document.getElementById('text-modal').classList.remove('open');
   renderGrid();
