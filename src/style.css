@@ -222,16 +222,16 @@ td.col-time.row-hl { color: #2563eb; font-weight: 600; }
 
 /* Past-time darkening overlay */
 .cell.past {
-  background: #e8e4de;
+  background: #d4cfc8;
 }
 .cell.past.weekend-bg {
-  background: #e0dcd6;
+  background: #cac5be;
 }
 .cell.past::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.13);
+  background: rgba(0, 0, 0, 0.38);
   pointer-events: none;
   z-index: 0;
 }

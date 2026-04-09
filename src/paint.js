@@ -48,7 +48,12 @@ export function initPaint() {
   grid.addEventListener('mouseover', e => {
     if (!state.isDragging) return;
     const td = e.target.closest('.cell');
-    if (td) applyTool(td);
+    if (!td) return;
+    if (state.activeTool === 'paint') {
+      const key = cellKey(+td.dataset.d, +td.dataset.h);
+      if (state.cells[key]) return; // don't overwrite existing blocks while dragging
+    }
+    applyTool(td);
   });
 
   grid.addEventListener('contextmenu', e => {
