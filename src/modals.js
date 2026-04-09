@@ -4,6 +4,7 @@ import { cellKey, fmtSlotFull, nextSlot } from './utils.js';
 import { getBlock } from './blocks.js';
 import { pushUndo } from './history.js';
 import { renderGrid } from './grid.js';
+import { markPastCells } from './time.js';
 import { autosave } from './storage.js';
 
 function saveText() {
@@ -18,6 +19,7 @@ function saveText() {
   }
   document.getElementById('text-modal').classList.remove('open');
   renderGrid();
+  markPastCells();
   autosave();
 }
 
@@ -57,6 +59,7 @@ export function initModals() {
     }
     document.getElementById('text-modal').classList.remove('open');
     renderGrid();
+    markPastCells();
     autosave();
   });
 
