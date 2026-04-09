@@ -12,7 +12,7 @@ import { initModals } from './modals.js';
 import { initKeyboard } from './keyboard.js';
 
 // Wire undo/redo to re-render (avoids circular import between history.js and grid.js)
-setHistoryCallback(renderGrid);
+setHistoryCallback(() => { renderGrid(); markPastCells(); });
 
 // Register service worker (production only — Vite does not run SW in dev)
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
