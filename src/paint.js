@@ -3,6 +3,8 @@ import { DAYS } from './constants.js';
 import { cellKey, contrast } from './utils.js';
 import { pushUndo } from './history.js';
 import { autosave } from './storage.js';
+import { renderGrid } from './grid.js';
+import { markPastCells } from './time.js';
 
 function applyTool(td) {
   const dIdx = +td.dataset.d;
@@ -69,10 +71,12 @@ export function initPaint() {
     const dow = DAYS[+td.dataset.d].getDay();
     if (dow === 0 || dow === 6) td.classList.add('weekend-bg');
     autosave();
+    renderGrid();
+    markPastCells();
   });
 
   document.addEventListener('mouseup', () => {
-    if (state.isDragging) autosave();
+    if (state.isDragging) { autosave(); renderGrid(); markPastCells(); }
     state.isDragging = false;
   });
 }
