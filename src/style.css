@@ -231,6 +231,9 @@ td.col-time.block-hl {
   color: #1a1a1a;
   font-weight: 700;
 }
+td.col-time.block-hl.row-hl {
+  color: #2563eb;
+}
 
 /* Current time slot highlight */
 .cell.current {
