@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { DAYS } from './constants.js';
-import { cellKey, contrast } from './utils.js';
+import { cellKey } from './utils.js';
 import { pushUndo } from './history.js';
 import { autosave } from './storage.js';
 import { renderBlockLabels } from './grid.js';
@@ -76,13 +76,10 @@ function applyTool(td) {
     }
 
     td.style.background = color;
-    let inner = td.querySelector('.cell-inner');
-    if (!inner) {
-      inner = document.createElement('div');
-      inner.className = 'cell-inner';
-      td.appendChild(inner);
-    }
-    inner.style.color = contrast(color);
+    // Remove any stale .cell-inner (it causes border-collapse rendering artefacts
+    // because its z-index stacking context interferes with border-top:hidden).
+    // Text labels are rendered by the renderBlockLabels() overlay, not in-cell.
+    td.querySelector('.cell-inner')?.remove();
     fixBorders(dIdx, hIdx);
   }
 }
