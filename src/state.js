@@ -10,6 +10,7 @@ export const state = {
   editingBlock: null, // { dIdx, start, end, color }
   hlRow:        -1,
   hlCol:        -1,
+  hlBlock:      null, // { dIdx, start, end } | null
   undoStack:    [],
   redoStack:    [],
 };

@@ -220,6 +220,18 @@ thead th.col-hl { color: #2563eb !important; background: #eff6ff !important; }
 thead th.col-hl.weekend { background: #e8f0fe !important; }
 td.col-time.row-hl { color: #2563eb; font-weight: 600; }
 
+/* Hovered block highlight */
+.cell.block-hl {
+  background-image: linear-gradient(rgba(255,255,255,0.22), rgba(255,255,255,0.22));
+  outline: 1px solid rgba(255,255,255,0.5);
+  outline-offset: -1px;
+  z-index: 1;
+}
+td.col-time.block-hl {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
 /* Current time slot highlight */
 .cell.current {
   outline: 2px solid #f59e0b;
