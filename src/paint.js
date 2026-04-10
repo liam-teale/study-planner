@@ -12,45 +12,49 @@ function cellEl(dIdx, hIdx) {
   return document.querySelector(`.cell[data-d="${dIdx}"][data-h="${hIdx}"]`);
 }
 
-// Sweep all cells and reconcile border-top with current state.
+// Set both borderTop and borderBottom for a cell based on its neighbours.
+// Setting both sides of a shared border to 'hidden' is belt-and-suspenders
+// for border-collapse: some browsers (Edge) render the solid border-bottom
+// of the cell above even when only the cell below has border-top:hidden.
+function setCellBorders(td, dIdx, hIdx) {
+  const color      = state.cells[cellKey(dIdx, hIdx)]?.color ?? null;
+  const aboveColor = hIdx > 0 ? (state.cells[cellKey(dIdx, hIdx - 1)]?.color ?? null) : null;
+  const belowColor = state.cells[cellKey(dIdx, hIdx + 1)]?.color ?? null;
+  td.style.borderTop    = (color && color === aboveColor) ? 'hidden' : '';
+  td.style.borderBottom = (color && color === belowColor) ? 'hidden' : '';
+}
+
+// Sweep all cells and reconcile borders with current state.
 // Called after mouseup to catch any borders fixBorders() missed (e.g. fast mouse moves).
 function reapplyAllBorders() {
   document.querySelectorAll('#grid tbody .cell').forEach(td => {
-    const dIdx = +td.dataset.d;
-    const hIdx = +td.dataset.h;
-    const color = state.cells[cellKey(dIdx, hIdx)]?.color ?? null;
-    const aboveColor = hIdx > 0 ? (state.cells[cellKey(dIdx, hIdx - 1)]?.color ?? null) : null;
-    td.style.borderTop = (color && color === aboveColor) ? 'hidden' : '';
+    setCellBorders(td, +td.dataset.d, +td.dataset.h);
   });
 }
 
-// After painting or erasing (dIdx, hIdx), fix the top-border of that cell
-// and the cell immediately below so intra-block borders stay hidden and
-// inter-block borders stay visible — without rebuilding the whole DOM.
+// After painting or erasing (dIdx, hIdx), fix borders on that cell and its
+// immediate neighbours so intra-block borders stay hidden and inter-block
+// borders stay visible — without rebuilding the whole DOM.
 function fixBorders(dIdx, hIdx) {
-  const color = state.cells[cellKey(dIdx, hIdx)]?.color ?? null;
-
-  // This cell's top border
   const td = cellEl(dIdx, hIdx);
-  if (td) {
-    const aboveColor = state.cells[cellKey(dIdx, hIdx - 1)]?.color ?? null;
-    td.style.borderTop = (color && color === aboveColor) ? 'hidden' : '';
-  }
+  if (td) setCellBorders(td, dIdx, hIdx);
 
-  // Cell below: its top border depends on what we just changed above it
+  // Cell above: its borderBottom may now need updating
+  const tdAbove = cellEl(dIdx, hIdx - 1);
+  if (tdAbove) setCellBorders(tdAbove, dIdx, hIdx - 1);
+
+  // Cell below: its borderTop may now need updating
   const tdBelow = cellEl(dIdx, hIdx + 1);
-  if (tdBelow) {
-    const belowColor = state.cells[cellKey(dIdx, hIdx + 1)]?.color ?? null;
-    tdBelow.style.borderTop = (belowColor && belowColor === color) ? 'hidden' : '';
-  }
+  if (tdBelow) setCellBorders(tdBelow, dIdx, hIdx + 1);
 }
 
 // Erase a single cell: clear state, reset DOM styles, restore weekend tint,
 // and fix surrounding borders. Used by both applyTool and the contextmenu handler.
 function eraseCell(td, dIdx, hIdx) {
   delete state.cells[cellKey(dIdx, hIdx)];
-  td.style.background = '';
-  td.style.borderTop  = '';
+  td.style.background   = '';
+  td.style.borderTop    = '';
+  td.style.borderBottom = '';
   td.title = '';
   td.innerHTML = '';
   const dow = DAYS[dIdx].getDay();

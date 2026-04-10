@@ -99,9 +99,10 @@ export function renderGrid() {
       const data = state.cells[cellKey(dIdx, sIdx)];
       if (data) {
         td.style.background = data.color;
-        // Remove top border when this cell continues the same block as the one above
         const above = sIdx > 0 ? state.cells[cellKey(dIdx, sIdx - 1)] : null;
-        if (above && above.color === data.color) td.style.borderTop = 'hidden';
+        const below = state.cells[cellKey(dIdx, sIdx + 1)];
+        if (above && above.color === data.color) td.style.borderTop    = 'hidden';
+        if (below && below.color === data.color) td.style.borderBottom = 'hidden';
       }
 
       tr.appendChild(td);
